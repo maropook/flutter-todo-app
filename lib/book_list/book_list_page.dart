@@ -3,6 +3,8 @@ import 'package:todoapp/book_list/book_list_model.dart';
 import 'package:todoapp/domain/book.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:todoapp/edit_book/edit_book_page.dart';
 
 class BookListPage extends StatelessWidget {
   @override
@@ -23,9 +25,38 @@ class BookListPage extends StatelessWidget {
 
             final List<Widget> widgets = books
                 .map(
-                  (book) => ListTile(
-                    title: Text(book.title),
-                    subtitle: Text(book.author),
+                  (book) => Slidable(
+                    actionPane: SlidableDrawerActionPane(),
+                    child: ListTile(
+                      title: Text(book.title),
+                      subtitle: Text(book.author),
+                    ),
+                    secondaryActions: <Widget>[
+                      IconSlideAction(
+                          caption: '編集',
+                          color: Colors.black45,
+                          icon: Icons.more_horiz,
+                          onTap: () async {
+                            final String? title = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditBookPage(book),
+                                ));
+
+                            if (title != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      backgroundColor: Colors.grey,
+                                      content: Text("${title}を編集しました")));
+                            }
+                            model.fetchBookList();
+                          }),
+                      IconSlideAction(
+                          caption: '削除',
+                          color: Colors.red,
+                          icon: Icons.delete,
+                          onTap: () => null),
+                    ],
                   ),
                 )
                 .toList();
