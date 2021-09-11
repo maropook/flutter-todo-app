@@ -15,6 +15,19 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+
+----Podfile----------------------
+platform :ios, '12.0' がコメントアウトされていた場合は直す．
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '8.6.0'
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+end
+
+firestoreを使う場合は上記を設定しておかないとpodinstallにとんでもない時間がかかる．
+
+
 ----------firebase/sample--------------
 
 
