@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -8,8 +9,20 @@ class AddBookModel extends ChangeNotifier {
   String? title;
   String? author;
   File? imageFile;
+  bool isLoading = false;
 
   final picker = ImagePicker();
+
+  void startLoading() {
+    isLoading = true;
+    notifyListeners();
+  }
+
+  void endLoading() {
+    isLoading = false;
+    notifyListeners();
+  }
+
   Future addBook() async {
     if (title == null || title == "") {
       throw '本のタイトルが空です';
@@ -18,9 +31,22 @@ class AddBookModel extends ChangeNotifier {
       throw '著者が入力されていません';
     }
 
-    await FirebaseFirestore.instance.collection('books').add({
+    final doc = FirebaseFirestore.instance.collection('books').doc();
+    String? imgURL;
+
+    if (imageFile != null) {
+      //strageにアップロード
+      final task = await FirebaseStorage.instance
+          .ref('books/${doc.id}')
+          .putFile(imageFile!);
+
+      imgURL = await task.ref.getDownloadURL();
+    }
+
+    await doc.set({
       'title': title,
       'author': author,
+      'imgURL': imgURL,
     });
   }
 
@@ -29,6 +55,7 @@ class AddBookModel extends ChangeNotifier {
 
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
+      notifyListeners();
     }
   }
 }
